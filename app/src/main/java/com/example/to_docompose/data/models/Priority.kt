@@ -8,6 +8,7 @@ import com.example.to_docompose.ui.theme.MediumPriorityColor
 import com.example.to_docompose.ui.theme.NonePriorityColor
 
 enum class Priority (val color: Color){
+    //color class
     HIGH(HighPriorityColor),
     MEDIUM(MediumPriorityColor),
     LOW(LowPriorityColor),
