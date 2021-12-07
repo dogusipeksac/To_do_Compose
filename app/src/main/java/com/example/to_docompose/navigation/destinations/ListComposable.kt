@@ -6,13 +6,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.to_docompose.navigation.Screens
 import com.example.to_docompose.ui.screens.list.ListScreen
+import com.example.to_docompose.ui.viewmodels.SharedViewModel
 import com.example.to_docompose.util.Constants.LIST_ARGUMENT_KEY
 import com.example.to_docompose.util.Constants.LIST_SCREEN
 
-fun NavGraphBuilder.listComposable(navigateToTaskScreens: (taskId:Int)->Unit ){
+fun NavGraphBuilder.listComposable(
+    navigateToTaskScreens: (taskId: Int) -> Unit,
+    sharedViewModel: SharedViewModel
+){
     composable(route = LIST_SCREEN,arguments = listOf(navArgument(LIST_ARGUMENT_KEY){
         type= NavType.StringType
     })){
-        ListScreen(navigateToTaskScreens = navigateToTaskScreens)
+        ListScreen(navigateToTaskScreens = navigateToTaskScreens,sharedViewModel = sharedViewModel)
     }
 }
