@@ -26,7 +26,10 @@ fun TaskAppBar(
         NewTaskAppBar(navigateToListScreen = navigateToListScreen)
     }
     else{
-        ExistingTaskAppBar(selectedTask = selectedTask, navigateToListScreen =navigateToListScreen )
+        ExistingTaskAppBar(
+            selectedTask = selectedTask,
+            navigateToListScreen = navigateToListScreen
+        )
     }
 
 }   
