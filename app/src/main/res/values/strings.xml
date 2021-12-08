@@ -8,4 +8,8 @@
     <string name="list_screen_title">Tasks</string>
     <string name="search_icon">Search Icon</string>
     <string name="close_icon">Close Icon</string>
+    <string name="sad_face_icon">Sad Face Icon</string>
+    <string name="no_task_string">No Tasks Found</string>
+    <string name="add_task_string">Add Task</string>
+    <string name="back_arrow_icon">Back Arrow</string>
 </resources>
