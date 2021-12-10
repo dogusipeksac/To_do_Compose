@@ -26,19 +26,42 @@ import com.example.to_docompose.util.SearchAppBarState
 fun ListContent(
     searchAppBarState:SearchAppBarState,
     searchedTasks: RequestState<List<ToDoTask>>,
+    lowPriorityTasks:List<ToDoTask>,
+    highPriorityTasks:List<ToDoTask>,
+    sortState:RequestState<Priority>,
     allTasks: RequestState<List<ToDoTask>>,
     navigateToDoTaskScreen: (taskId:Int)->Unit){
-    if(searchAppBarState==SearchAppBarState.TRIGGERED){
-        if(searchedTasks is RequestState.Success){
-            HandleListContent(tasks = searchedTasks.data,
-                navigateToTaskScreen =navigateToDoTaskScreen )
+    if(sortState is RequestState.Success){
+        when{
+            //aranmış olanı
+            searchAppBarState==SearchAppBarState.TRIGGERED->{
+                if(searchedTasks is RequestState.Success){
+                    HandleListContent(
+                        tasks = searchedTasks.data,
+                        navigateToTaskScreen =navigateToDoTaskScreen )
+                }
+            }
+            //none ise oan göre sıralıyor
+            sortState.data==Priority.NONE->{
+                if(allTasks is RequestState.Success){
+                    HandleListContent(tasks = allTasks.data,
+                        navigateToTaskScreen = navigateToDoTaskScreen)
+                }
+            }
+            //low oalrak sıralıyor
+            sortState.data==Priority.LOW ->{
+                HandleListContent(tasks = lowPriorityTasks,
+                    navigateToTaskScreen = navigateToDoTaskScreen)
+            }
+            //high olarak sıralıyor
+            sortState.data==Priority.HIGH->{
+                HandleListContent(tasks = highPriorityTasks,
+                    navigateToTaskScreen = navigateToDoTaskScreen)
+            }
         }
-    }else{
-        if(allTasks is RequestState.Success){
-            HandleListContent(tasks = allTasks.data,
-                navigateToTaskScreen = navigateToDoTaskScreen)
-        }
+
     }
+
 }
 @ExperimentalMaterialApi
 @Composable
