@@ -19,21 +19,41 @@ import com.example.to_docompose.data.models.Priority
 import com.example.to_docompose.data.models.ToDoTask
 import com.example.to_docompose.ui.theme.*
 import com.example.to_docompose.util.RequestState
+import com.example.to_docompose.util.SearchAppBarState
 
 @ExperimentalMaterialApi
 @Composable
-fun ListContent(tasks: RequestState<List<ToDoTask>>,
-                navigateToDoTaskScreen: (taskId:Int)->Unit){
-    if (tasks is RequestState.Success){
-        if(tasks.data.isEmpty()){
-            EmptyContent()
+fun ListContent(
+    searchAppBarState:SearchAppBarState,
+    searchedTasks: RequestState<List<ToDoTask>>,
+    allTasks: RequestState<List<ToDoTask>>,
+    navigateToDoTaskScreen: (taskId:Int)->Unit){
+    if(searchAppBarState==SearchAppBarState.TRIGGERED){
+        if(searchedTasks is RequestState.Success){
+            HandleListContent(tasks = searchedTasks.data,
+                navigateToTaskScreen =navigateToDoTaskScreen )
         }
-        else{
-            DisplayTasks(
-                tasks = tasks.data,
-                navigateToDoTaskScreen = navigateToDoTaskScreen
-            )
+    }else{
+        if(allTasks is RequestState.Success){
+            HandleListContent(tasks = allTasks.data,
+                navigateToTaskScreen = navigateToDoTaskScreen)
         }
+    }
+}
+@ExperimentalMaterialApi
+@Composable
+fun HandleListContent(
+    tasks:List<ToDoTask>,
+    navigateToTaskScreen:(tasks:Int)->Unit
+){
+    if(tasks.isEmpty()){
+        EmptyContent()
+    }
+    else{
+        DisplayTasks(
+            tasks = tasks,
+            navigateToDoTaskScreen = navigateToTaskScreen
+        )
     }
 }
 

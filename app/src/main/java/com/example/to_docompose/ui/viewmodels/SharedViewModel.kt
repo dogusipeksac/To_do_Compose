@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.room.Query
 import com.example.to_docompose.data.models.Priority
 import com.example.to_docompose.data.models.ToDoTask
 import com.example.to_docompose.data.repositories.ToDoRepository
@@ -29,6 +30,25 @@ class  SharedViewModel @Inject constructor(private val repository: ToDoRepositor
     val title:MutableState<String> = mutableStateOf("")
     val description:MutableState<String> = mutableStateOf("")
     val priority:MutableState<Priority> = mutableStateOf(Priority.LOW)
+
+    private val _searchedTasks=MutableStateFlow<RequestState<List<ToDoTask>>>(RequestState.Idle)
+    val searchedTasks:StateFlow<RequestState<List<ToDoTask>>> =_searchedTasks
+
+    fun searchDatabase(searchQuery: String){
+        _searchedTasks.value=RequestState.Loading
+        try {
+            viewModelScope.launch {
+                repository.searchDatabase(searchQuery="%$searchQuery%")
+                    .collect { searchedTasks->
+                        _searchedTasks.value=RequestState.Success(searchedTasks)
+                    }
+            }
+        }catch (e:Exception){
+            _searchedTasks.value=RequestState.Error(e)
+        }
+        searchAppBarState.value=SearchAppBarState.TRIGGERED
+
+    }
 
 
     private val _allTasks=MutableStateFlow<RequestState<List<ToDoTask>>>(RequestState.Idle)
@@ -69,6 +89,7 @@ class  SharedViewModel @Inject constructor(private val repository: ToDoRepositor
            )
             repository.addTask(toDoTask = toDoTask)
         }
+        searchAppBarState.value=SearchAppBarState.CLOSED
     }
 
     private fun updateTask(){
@@ -93,6 +114,11 @@ class  SharedViewModel @Inject constructor(private val repository: ToDoRepositor
             repository.deleteTask(toDoTask = toDoTask)
         }
     }
+    private fun deleteAllTasks(){
+        viewModelScope.launch (Dispatchers.IO){
+            repository.deleteAllTask()
+        }
+    }
 
     fun handleDatabaseActions(action: Action) {
         when(action){
@@ -106,10 +132,10 @@ class  SharedViewModel @Inject constructor(private val repository: ToDoRepositor
                 deleteTask()
             }
             Action.DELETE_ALL->{
-
+                deleteAllTasks()
             }
             Action.UNDO->{
-
+                addTask()
             }
             else -> {
 

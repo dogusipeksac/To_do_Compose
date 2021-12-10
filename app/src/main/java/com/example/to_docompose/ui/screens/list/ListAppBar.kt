@@ -23,10 +23,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.to_docompose.R
+import com.example.to_docompose.components.DisplayAlertDialog
 import com.example.to_docompose.components.PriorityItem
 import com.example.to_docompose.data.models.Priority
 import com.example.to_docompose.ui.theme.*
 import com.example.to_docompose.ui.viewmodels.SharedViewModel
+import com.example.to_docompose.util.Action
 import com.example.to_docompose.util.SearchAppBarState
 import com.example.to_docompose.util.TrailingIconState
 
@@ -44,7 +46,9 @@ fun ListAppBar(
                                  SearchAppBarState.OPENED
             },
             onShortClicked ={},
-            onDeleteClicked = {})
+            onDeleteAllConfirmedClicked = {
+                sharedViewModel.action.value=Action.DELETE_ALL
+            })
         }
         else->{
             SearchAppBar(text = searchTextState,
@@ -55,7 +59,9 @@ fun ListAppBar(
                                      SearchAppBarState.CLOSED
                         sharedViewModel.searchTextState.value=""
                 },
-                onSearchClicked = {})
+                onSearchClicked = {
+                   sharedViewModel.searchDatabase(searchQuery = it)
+                })
         }
     }
 
@@ -66,15 +72,16 @@ fun ListAppBar(
 fun DefaultListAppBar(
     onSearchClicked: () -> Unit,
     onShortClicked:(Priority)->Unit,
-    onDeleteClicked: () -> Unit){
+    onDeleteAllConfirmedClicked: () -> Unit){
     TopAppBar(
         title = {
-        Text(text = stringResource(R.string.list_screen_title), color = MaterialTheme.colors.topAppBarContentColor)},
+        Text(text = stringResource(R.string.list_screen_title),
+            color = MaterialTheme.colors.topAppBarContentColor)},
         actions={
             ListAppBarActions(
                 onSearchClicked = onSearchClicked,
                 onShortClicked =onShortClicked,
-                onDeleteClicked = onDeleteClicked )
+                onDeleteAllConfirmedClicked = onDeleteAllConfirmedClicked )
         },
         backgroundColor = MaterialTheme.colors.topAppBarBackgroundColor)
 }
@@ -82,10 +89,22 @@ fun DefaultListAppBar(
 fun ListAppBarActions(
     onSearchClicked: () -> Unit,
     onShortClicked:(Priority)->Unit,
-    onDeleteClicked: () -> Unit){
+    onDeleteAllConfirmedClicked: () -> Unit){
+    var openDialog by remember{ mutableStateOf(false) }
+    
+    DisplayAlertDialog(
+        title = stringResource(id = R.string.delete_all_task),
+        message =stringResource(id = R.string.delete_all_task_confirmation),
+        openDialog =openDialog,
+        closeDialog = { openDialog=false },
+        onYesClicked =onDeleteAllConfirmedClicked
+    )
+
     SearchAction(onSearchClicked = onSearchClicked)
     SortAction(onSortClicked = onShortClicked)
-    DeleteAllAction(onDeleteClicked = onDeleteClicked)
+    DeleteAllAction(onDeleteAllConfirmedClicked = {
+        openDialog=true
+    })
 }
 @Composable
 fun SearchAction(onSearchClicked: () -> Unit){
@@ -146,7 +165,7 @@ fun SortAction(onSortClicked:(Priority)-> Unit){
 }
 
 @Composable
-fun DeleteAllAction(onDeleteClicked:()-> Unit){
+fun DeleteAllAction(onDeleteAllConfirmedClicked:()-> Unit){
     var expanded by remember{ mutableStateOf(false) }
     IconButton(onClick = {  expanded =true}) {
         Icon(painter = painterResource(id = R.drawable.ic_more_vert),
@@ -160,7 +179,7 @@ fun DeleteAllAction(onDeleteClicked:()-> Unit){
             DropdownMenuItem(
                 onClick = {
                     expanded=false
-                    onDeleteClicked()
+                    onDeleteAllConfirmedClicked()
                 }
             )
             {
@@ -260,7 +279,7 @@ private fun DefaultListAppPreview(){
     DefaultListAppBar(
         onSearchClicked = {},
         onShortClicked = {},
-        onDeleteClicked = {})
+        onDeleteAllConfirmedClicked = {})
 }
 
 @Composable
