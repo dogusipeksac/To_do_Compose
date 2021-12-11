@@ -23,4 +23,5 @@
     <string name="description">Description</string>
     <string name="yes_string">Yes</string>
     <string name="no_string">No</string>
+    <string name="todo_logo_image">To do App Logo</string>
 </resources>
